@@ -6,7 +6,7 @@ enum Token {
     Literal(usize),
     OpenBraket,
     CloseBraket,
-    WhiteSpace(usize),
+    WhiteSpace,
 }
 
 #[derive(PartialEq, Debug)]
@@ -32,7 +32,7 @@ pub fn tokenise(input: String) -> TokenStream {
         match character {
             '(' => tokens.push(Token::OpenBraket),
             ')' => tokens.push(Token::CloseBraket),
-            '0'..='9' => {
+            literal @ _ if literal.is_ascii_digit() || character == '-' => {
                 accumulator.push(character);
                 if !accumulate {
                     accumulate = true;
@@ -49,15 +49,14 @@ pub fn tokenise(input: String) -> TokenStream {
             '"' | '\'' => {
                 // TODO: include "strings"
             },
-            ' ' => {
+            ' ' | '\n' | '\t' => {
                 if accumulate {
                     symbols.push(Lexeme { value: accumulator });
                     accumulate = false;
                     accumulator = String::new();
                 }
-                tokens.push(Token::WhiteSpace(symbols.len()));
-                symbols.push(Lexeme { value: String::from(" ")});
-            }
+                tokens.push(Token::WhiteSpace);
+            },
             _ => tokens.push(Token::CloseBraket)
         }
         println!("{}", character);
@@ -80,30 +79,26 @@ mod tests {
         let result = TokenStream {
             symbols: vec![ 
                 Lexeme { value: String::from("list") }, 
-                Lexeme { value: String::from(" ") }, 
                 Lexeme { value: String::from("1") }, 
-                Lexeme { value: String::from(" ") }, 
                 Lexeme { value: String::from("2") }, 
-                Lexeme { value: String::from(" ") }, 
                 Lexeme { value: String::from("3") },
-                Lexeme { value: String::from(" ") }, 
-                Lexeme { value: String::from("44") },
+                Lexeme { value: String::from("-44") },
             ],
             tokens: vec![
                 Token::OpenBraket, 
                 Token::Id(0), 
-                Token::WhiteSpace(1), 
+                Token::WhiteSpace, 
+                Token::Number(1), 
+                Token::WhiteSpace, 
                 Token::Number(2), 
-                Token::WhiteSpace(3), 
+                Token::WhiteSpace, 
+                Token::Number(3), 
+                Token::WhiteSpace, 
                 Token::Number(4), 
-                Token::WhiteSpace(5), 
-                Token::Number(6), 
-                Token::WhiteSpace(7), 
-                Token::Number(8), 
                 Token::CloseBraket,
             ]
         };
             
-        assert_eq!(tokenise(String::from("(list 1 2 3 44)")), result);
+        assert_eq!(tokenise(String::from("(list 1 2 3 -44)")), result);
     }
 }
