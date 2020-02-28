@@ -27,6 +27,8 @@ pub fn tokenise(input: String) -> TokenStream {
     let mut accumulate = false;
     let mut accumulator = String::new();
 
+    let mut literal_accumulate = false;
+
     for character in input.chars() {
         let lexeme = String::new();
         match character {
@@ -39,25 +41,39 @@ pub fn tokenise(input: String) -> TokenStream {
                     tokens.push(Token::Number(symbols.len()));
                 } 
             },
-            'A'..='z' => {
+            'A'..='z' | '.' => {
                 accumulator.push(character);
-                if !accumulate {
+                if !accumulate && !literal_accumulate {
                     accumulate = true;
                     tokens.push(Token::Id(symbols.len()));
                 } 
             },
-            '"' | '\'' => {
-                // TODO: include "strings"
-            },
-            ' ' | '\n' | '\t' => {
-                if accumulate {
+            '\'' => {
+                if !literal_accumulate {
+                    literal_accumulate = true;
+                    tokens.push(Token::Literal(symbols.len()));
+                } else {
                     symbols.push(Lexeme { value: accumulator });
-                    accumulate = false;
+                    literal_accumulate = false;
                     accumulator = String::new();
                 }
-                tokens.push(Token::WhiteSpace);
             },
-            _ => tokens.push(Token::CloseBraket)
+            ' ' | '\n' | '\t' => {
+                if literal_accumulate {
+                    accumulator.push(character);
+                } else {
+                    if accumulate {
+                        symbols.push(Lexeme { value: accumulator });
+                        accumulate = false;
+                        literal_accumulate = false;
+                        accumulator = String::new();
+                    }
+                    tokens.push(Token::WhiteSpace);
+                }
+            },
+            literal @ _ => {
+                panic!("{} is an invalid character.", literal);
+            }
         }
         println!("{}", character);
     }
@@ -75,7 +91,41 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_add() {
+    fn parse_list_with_literal_in_it() {
+        let result = TokenStream {
+            symbols: vec![ 
+                Lexeme { value: String::from("list") },
+                Lexeme { value: String::from("I have spaces in me") }, 
+                Lexeme { value: String::from("-2.2") }, 
+            ],
+            tokens: vec![ 
+                Token::OpenBraket,
+                Token::Id(0),
+                Token::WhiteSpace,
+                Token::Literal(1),
+                Token::WhiteSpace,
+                Token::Number(2),
+                Token::CloseBraket,
+            ] 
+        };
+            
+        assert_eq!(tokenise(String::from("(list \'I have spaces in me\' -2.2)")), result);
+    }
+
+    #[test]
+    fn parse_literal_with_spaces_in_it() {
+        let result = TokenStream {
+            symbols: vec![ 
+                Lexeme { value: String::from("I have spaces in me") }, 
+            ],
+            tokens: vec![ Token::Literal(0) ]
+        };
+            
+        assert_eq!(tokenise(String::from("\'I have spaces in me\'")), result);
+    }
+
+    #[test]
+    fn parse_list_of_numbers() {
         let result = TokenStream {
             symbols: vec![ 
                 Lexeme { value: String::from("list") }, 
