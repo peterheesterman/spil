@@ -1,8 +1,24 @@
 
-mod tokeniser;
+use std::env;
+use std::fs;
+
+mod spil;
+
+/*
+  cargo run -- ../test-data/program.sp
+  cargo run -- ../test-data/simple-expression.sp
+*/
 
 fn main() {
-    println!("Hello, world!");
-    // let tokens = tokeniser::tokenise(String::from("(list 1 2 3)"));
-    // println!("{:?}", tokens);
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        println!("You must pass at least a path to some source code.");
+        return;
+    }
+
+    let source_file_path = args[1].clone();
+    let source_code = fs::read_to_string(source_file_path)
+        .expect("Something went wrong reading the file");
+
+    spil::run(source_code);
 }

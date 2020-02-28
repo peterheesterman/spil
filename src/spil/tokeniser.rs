@@ -1,26 +1,9 @@
 
-#[derive(PartialEq, Debug)]
-enum Token {
-    Id(usize),
-    Number(usize),
-    Literal(usize),
-    OpenBraket,
-    CloseBraket,
-    WhiteSpace,
-}
+use super::Token;
+use super::TokenStream;
+use super::Lexeme;
 
-#[derive(PartialEq, Debug)]
-pub struct Lexeme {
-    value: String
-}
-
-#[derive(PartialEq, Debug)]
-pub struct TokenStream {
-    symbols: Vec<Lexeme>,
-    tokens: Vec<Token>,
-}
-
-pub fn tokenise(input: String) -> TokenStream {
+pub(crate) fn tokenise(input: String, remove_whites_space: bool) -> TokenStream {
     let mut tokens: Vec<Token> = vec![];
     let mut symbols: Vec<Lexeme> = vec![];
 
@@ -30,7 +13,6 @@ pub fn tokenise(input: String) -> TokenStream {
     let mut literal_accumulate = false;
 
     for character in input.chars() {
-        let lexeme = String::new();
         match character {
             '(' => tokens.push(Token::OpenBraket),
             ')' => tokens.push(Token::CloseBraket),
@@ -40,6 +22,10 @@ pub fn tokenise(input: String) -> TokenStream {
                     accumulate = true;
                     tokens.push(Token::Number(symbols.len()));
                 } 
+            },
+            operator @ _ if "+-*/%".contains(operator) => {
+                tokens.push(Token::Operator(symbols.len()));
+                symbols.push(Lexeme { value: operator.to_string() });
             },
             'A'..='z' | '.' => {
                 accumulator.push(character);
@@ -75,14 +61,22 @@ pub fn tokenise(input: String) -> TokenStream {
                 panic!("{} is an invalid character.", literal);
             }
         }
-        println!("{}", character);
     }
 
     if accumulator.len() > 0 {
         symbols.push(Lexeme { value: accumulator });
     }
 
-    TokenStream { symbols, tokens }
+    TokenStream { 
+        symbols, 
+        tokens: if remove_whites_space { 
+            tokens
+                .into_iter()
+                .filter(|x| x != &Token::WhiteSpace).collect() 
+        } else {
+            tokens
+        }
+    }
 }
 
 
@@ -109,7 +103,7 @@ mod tests {
             ] 
         };
             
-        assert_eq!(tokenise(String::from("(list \'I have spaces in me\' -2.2)")), result);
+        assert_eq!(tokenise(String::from("(list \'I have spaces in me\' -2.2)"), false), result);
     }
 
     #[test]
@@ -121,7 +115,7 @@ mod tests {
             tokens: vec![ Token::Literal(0) ]
         };
             
-        assert_eq!(tokenise(String::from("\'I have spaces in me\'")), result);
+        assert_eq!(tokenise(String::from("\'I have spaces in me\'"), false), result);
     }
 
     #[test]
@@ -149,6 +143,6 @@ mod tests {
             ]
         };
             
-        assert_eq!(tokenise(String::from("(list 1 2 3 -44)")), result);
+        assert_eq!(tokenise(String::from("(list 1 2 3 -44)"), false), result);
     }
 }
