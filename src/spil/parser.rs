@@ -6,7 +6,16 @@ use super::Lexeme;
 use super::AST;
 
 pub(crate) fn parse(token_stream: TokenStream) -> AST {
-    AST { root: Node { right: None, left: None, value: Token::Number(0) }}
+    // TODO: to the parsing to make this work
+    let number1 = Node::Number { token: Token::Number(1), value: 1_f64 };
+    let number2 = Node::Number { token: Token::Number(2), value: 2_f64 };
+    AST { 
+        root: Node::BinOp { 
+            right: Box::new(number1), 
+            left: Box::new(number2),
+            token: Token::Operator(0),
+        }
+    }
 }
 
 #[cfg(test)]
@@ -29,8 +38,15 @@ mod tests {
                 Token::CloseBraket,
             ]
         };
-        let result = AST {
-            root: Node { right: None, left: None, value: Token::Number(0) }
+
+        let number1 = Node::Number { token: Token::Number(1), value: 1_f64 };
+        let number2 = Node::Number { token: Token::Number(2), value: 2_f64 };
+        let result = AST { 
+            root: Node::BinOp { 
+                right: Box::new(number1), 
+                left: Box::new(number2),
+                token: Token::Operator(0),
+            }
         };
         assert_eq!(parse(token_stream), result);
     }

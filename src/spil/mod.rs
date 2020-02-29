@@ -12,7 +12,7 @@ enum Token {
 
 #[derive(PartialEq, Debug)]
 struct Lexeme {
-    value: String
+    value: String,
 }
 
 #[derive(PartialEq, Debug)]
@@ -22,15 +22,29 @@ pub(crate) struct TokenStream {
 }
 
 #[derive(PartialEq, Debug)]
-struct Node {
-    left: Option<Box<Node>>,
-    right: Option<Box<Node>>,
-    value: Token
+enum Node {
+    ListOp {
+        children: Vec<Node>,
+        token: Token,
+    },
+    BinOp {
+        left: Box<Node>,
+        right: Box<Node>,
+        token: Token,
+    },
+    UnaryOp {
+        child: Box<Node>,
+        token: Token,
+    },
+    Number {
+        token: Token,
+        value: f64,
+    },
 }
 
 #[derive(PartialEq, Debug)]
 pub(crate) struct AST {
-    root: Node
+    root: Node,
 }
 
 mod tokeniser;
