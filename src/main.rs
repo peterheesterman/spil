@@ -5,6 +5,7 @@ use std::fs;
 mod spil;
 
 /*
+ * Testing commands
   cargo run -- ../test-data/program.sp
   cargo run -- ../test-data/simple-expression.sp
 */

@@ -1,7 +1,7 @@
 
 # Spil
 
-A lispy experiment
+A lispy experiment to maximise learning.
 
 Notes:
  - " are not valid, all literals must start and end with '
@@ -9,3 +9,4 @@ Notes:
 Todo: 
  - [x] add operators +, -, /, *, %
  - add true and false
+ - build AST
