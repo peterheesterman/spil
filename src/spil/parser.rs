@@ -31,11 +31,11 @@ mod tests {
                 Lexeme { value: String::from("2") }, 
             ],
             tokens: vec![
-                Token::OpenBraket, 
+                Token::OpenBracket, 
                 Token::Operator(0), 
                 Token::Number(1), 
                 Token::Number(2), 
-                Token::CloseBraket,
+                Token::CloseBracket,
             ]
         };
 

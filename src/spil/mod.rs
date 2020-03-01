@@ -5,8 +5,8 @@ enum Token {
     Number(usize),
     Literal(usize),
     Operator(usize),
-    OpenBraket,
-    CloseBraket,
+    OpenBracket,
+    CloseBracket,
     WhiteSpace,
 }
 

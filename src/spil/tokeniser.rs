@@ -14,8 +14,8 @@ pub(crate) fn tokenise(input: String, remove_whites_space: bool) -> TokenStream 
 
     for character in input.chars() {
         match character {
-            '(' => tokens.push(Token::OpenBraket),
-            ')' => tokens.push(Token::CloseBraket),
+            '(' => tokens.push(Token::OpenBracket),
+            ')' => tokens.push(Token::CloseBracket),
             literal @ _ if literal.is_ascii_digit() || character == '-' => {
                 accumulator.push(character);
                 if !accumulate {
@@ -93,13 +93,13 @@ mod tests {
                 Lexeme { value: String::from("-2.2") }, 
             ],
             tokens: vec![ 
-                Token::OpenBraket,
+                Token::OpenBracket,
                 Token::Id(0),
                 Token::WhiteSpace,
                 Token::Literal(1),
                 Token::WhiteSpace,
                 Token::Number(2),
-                Token::CloseBraket,
+                Token::CloseBracket,
             ] 
         };
             
@@ -129,7 +129,7 @@ mod tests {
                 Lexeme { value: String::from("-44") },
             ],
             tokens: vec![
-                Token::OpenBraket, 
+                Token::OpenBracket, 
                 Token::Id(0), 
                 Token::WhiteSpace, 
                 Token::Number(1), 
@@ -139,7 +139,7 @@ mod tests {
                 Token::Number(3), 
                 Token::WhiteSpace, 
                 Token::Number(4), 
-                Token::CloseBraket,
+                Token::CloseBracket,
             ]
         };
             
